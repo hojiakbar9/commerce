@@ -1,0 +1,32 @@
+{% extends "auctions/layout.html" %} {% block body %} 
+{% for message in messages%}
+<div class="container-fluid p-0">
+  <div class="alert {{ message.tags }} alert-dismissible" role="alert">
+    {{ message }}
+  </div>
+</div>
+{% endfor %}
+<h2>Active Listings</h2>
+<div class="row row-cols-1 row-cols-md-3 g-4">
+  {%for listing in listings%}
+  <div class="col mb-4">
+    <div class="card h-100">
+      <img
+        src="{{listing.image}}"
+        class="card-img-top"
+        style="height: 300px; object-fit: cover"
+        alt="..."
+      />
+      <div class="card-body">
+        <h5 class="card-title">{{listing.title}}</h5>
+        <p class="card-text">{{listing.description}}</p>
+        <h6>Price: <strong>{{listing.price}}$</strong></h6>
+        <a href="{%url 'listing' listing.id%}" class="btn btn-primary"
+          >See Details</a
+        >
+      </div>
+    </div>
+  </div>
+  {%endfor%}
+</div>
+{% endblock %}

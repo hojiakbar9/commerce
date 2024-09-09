@@ -1,0 +1,161 @@
+{%extends "auctions/layout.html"%} {%block body%} {%if not listing.isActive%}
+{%if bidOwner == user %}
+<div class="alert alert-success" role="alert">
+  Congratulations You have won the auctuion!
+</div>
+{%else%}
+<div class="alert alert-primary" role="alert">The Auction is Closed!</div>
+{%endif%} {%endif%} {% for message in messages %}
+<div class="container-fluid p-0">
+  <div class="alert {{ message.tags }} alert-dismissible" role="alert">
+    {{ message }}
+  </div>
+</div>
+{% endfor %}
+
+<div style="display: flex; justify-content: space-between; align-items: center">
+  <div>
+    {% if isInWatchlist %}
+    <span
+      class="badge rounded-pill text-bg-secondary"
+      style="position: absolute; background-color: #6c757d; color: white"
+      >Watchlist</span
+    >
+    {%endif%}
+    <h2 style="margin-top: 20px">Listing: {{listing.title}}</h2>
+  </div>
+
+  <div>
+    {% if isInWatchlist %}
+    <form action="{% url 'removeFromWatchlist' listing.id %}" method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">
+        Remove From Watchlist
+      </button>
+    </form>
+    {% else %}
+    <form action="{% url 'addToWatchlist' listing.id %}" method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-secondary">Add To Watchlist</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+<div class="card mb-3" style="width: 100vw">
+  <div class="row g-0">
+    <div class="col-md-4">
+      {%if listing.image == ""%}
+      <p>No image available!</p>
+      {%else%}
+      <img src="{{listing.image}}" class="img-fluid" alt="..." />
+      {%endif%}
+    </div>
+    <div class="col-md-8">
+      <div class="card-body">
+        <h5 class="card-title" style="font-size: 3rem">Details:</h5>
+        <div style="width: 850px">
+          <p
+            style="line-height: 1.5; margin: 3rem 0 1rem; font-size: 1.5rem"
+            class="card-text"
+          >
+            {{listing.description}}
+          </p>
+        </div>
+        {%if listing.category is not empty%}
+        <p class="card-text" style="font-size: 1.5rem">
+          Category: {{listing.category}}
+        </p>
+        {%else%}
+        <p class="card-text" style="font-size: 1.5rem">
+          Category: No category listed
+        </p>
+        {%endif%}
+        <p class="card-text" style="font-size: 1.5rem">
+          Price: <strong>{{listing.price}}$</strong>
+        </p>
+        <p class="card-text">
+          <small class="text-body-secondary">Listed by {{listing.owner}}</small>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+<div>
+  <h5>Bid:</h5>
+  <p>{{numberOfBids}} bid(s) so far.</p>
+  {%if user == listing.owner and listing.isActive%}
+  <div class="mb-3">
+    <form action="{%url 'closeAuction' listing.id%}" method="post">
+      {%csrf_token%}
+      <button type="submit" class="btn btn-danger">Close The Auction</button>
+    </form>
+  </div>
+  {%elif listing.isActive%}
+  <div class="mb-3">
+    <form action="{%url 'bid' listing.id%}" method="post">
+      {%csrf_token%}
+      <div class="input-group mb-3 w-25">
+        <input
+          placeholder="Your bid..."
+          class="form-control"
+          type="number"
+          name="bid"
+          id="bid"
+          min="0"
+        />
+      </div>
+      <button type="submit" class="btn btn-primary">Offer a Bid</button>
+    </form>
+  </div>
+  {%endif%}
+</div>
+<br />
+<div>
+  <hr />
+  <h5>Comments:</h5>
+  <div class="row d-flex justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow-0 border" style="background-color: #f6f6f6">
+        <div class="card-body p-4">
+          <div class="form-outline mb-4">
+            <form action="{%url 'comment' listing.id%}" method="post">
+              <input
+                name="content"
+                type="text"
+                id="addANote"
+                class="form-control"
+                placeholder="Type comment..."
+              />
+
+              {%csrf_token%}
+              <button class="btn" type="submit">+ Add comment</button>
+            </form>
+          </div>
+          {%for comment in comments%}
+          <div class="card mb-4">
+            <div class="card-body">
+              <p style="font-weight: 400; font-size: 1.2rem">
+                {{comment.content}}
+              </p>
+
+              <div class="d-flex justify-content-between">
+                <div class="d-flex flex-row align-items-center">
+                  <p class="small mb-0 ms-2">
+                    Commented by: {{comment.author}}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          {%empty%}
+          <div>
+            <p>No comments</p>
+          </div>
+          {%endfor%}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div></div>
+</div>
+{%endblock%}
